@@ -8,7 +8,7 @@ summary: "Two rods, a Sun rod of hardened coal and a Moon rod of lodestone, held
 purpose: [energy, magic]
 planes: []
 bodyAreas: [hands, nervous system, spine, ganglia]
-colours: [white, black, red, blue, yellow]
+colours: []
 words: []
 posture: "Standing (Second Master Arcane) or seated on a block, relaxed, a rod gripped in each hand"
 orientation: "Following the direction of the Sun"
