@@ -1,0 +1,87 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { url, CATEGORY_LABEL } from '../../lib/url';
+import { EFFECTS, EFFECT_GROUPS } from '../../data/effects';
+
+const exercises = await getCollection('exercises');
+const ex = (slug: string) => exercises.find((e) => e.id === slug);
+const missing = EFFECTS.flatMap((f) => f.entries.map((e) => e.slug)).filter((s) => !ex(s));
+if (missing.length) throw new Error('effects.ts references unknown exercises: ' + missing.join(', '));
+---
+<Base title="What do you want to develop?" section="effects" description="Choose the effect you want to experience and be directed to the exercises the manuscript assigns to it.">
+  <div class="eyebrow">Guide</div>
+  <h1>What do you want to develop?</h1>
+  <p class="lede">Walewski attaches a promise to almost every exercise: sight, hearing, will, energy, healing, trance… Choose the effect you are after and the guide lists the exercises the text assigns to it, tells you which one to start with, and quotes the author's own claim so you can judge it.</p>
+
+  <div class="want">
+    <label for="want-select" class="eyebrow">I want to…</label>
+    <select id="want-select">
+      <option value="">— choose an effect —</option>
+      {EFFECT_GROUPS.map((g) => (
+        <optgroup label={g}>{EFFECTS.filter((f) => f.group === g).map((f) => <option value={f.slug}>{f.want}</option>)}</optgroup>
+      ))}
+    </select>
+    <button type="button" id="want-all" class="theme-btn">show all</button>
+  </div>
+
+  <nav class="chips" aria-label="Effects">
+    {EFFECTS.map((f) => <a class="chip" href={`#${f.slug}`} data-effect={f.slug}>{f.title}</a>)}
+  </nav>
+
+  {EFFECT_GROUPS.map((g) => (
+    <section class="effect-group" data-group={g}>
+      <h2 class="chapter-h">{g}</h2>
+      {EFFECTS.filter((f) => f.group === g).map((f) => (
+        <article class="effect" id={f.slug} data-effect={f.slug}>
+          <h3>{f.title} <span class="muted small">— I want to {f.want}</span></h3>
+          <p class="effect-intro" data-autolink>{f.intro}</p>
+          {f.startWith && ex(f.startWith) && (
+            <p class="start">Start with <a href={url(`/exercises/${f.startWith}/`)}>{ex(f.startWith)!.data.shortTitle ?? ex(f.startWith)!.data.title}</a>.</p>
+          )}
+          <div class="effect-list">
+            {['primary', 'supporting'].map((role) => {
+              const items = f.entries.filter((e) => e.role === role);
+              if (!items.length) return null;
+              return (
+                <div>
+                  <h4>{role === 'primary' ? 'Named for this purpose' : 'Also mentioned'}</h4>
+                  <ul>
+                    {items.map((e) => { const x = ex(e.slug)!; return (
+                      <li>
+                        <a href={url(`/exercises/${x.id}/`)}><strong>{x.data.shortTitle ?? x.data.title}</strong></a>
+                        <span class="tag">{CATEGORY_LABEL[x.data.category]}</span>
+                        <br /><span class="why">{e.why}</span>
+                      </li>
+                    ); })}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
+        </article>
+      ))}
+    </section>
+  ))}
+
+  <script>
+    const sel = document.getElementById('want-select') as HTMLSelectElement;
+    const all = document.getElementById('want-all') as HTMLButtonElement;
+    const articles = [...document.querySelectorAll<HTMLElement>('article.effect')];
+    const groups = [...document.querySelectorAll<HTMLElement>('section.effect-group')];
+    const chips = [...document.querySelectorAll<HTMLElement>('.chip')];
+    const show = (slug: string, scroll = false) => {
+      for (const a of articles) a.hidden = !!slug && a.dataset.effect !== slug;
+      for (const g of groups) g.hidden = ![...g.querySelectorAll('article.effect')].some((a) => !(a as HTMLElement).hidden);
+      for (const c of chips) c.classList.toggle('active', c.dataset.effect === slug);
+      sel.value = slug;
+      all.hidden = !slug;
+      if (slug && scroll) document.getElementById(slug)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    sel.addEventListener('change', () => { history.replaceState(null, '', sel.value ? `#${sel.value}` : location.pathname); show(sel.value); });
+    all.addEventListener('click', () => { history.replaceState(null, '', location.pathname); show(''); });
+    for (const c of chips) c.addEventListener('click', (ev) => { ev.preventDefault(); history.replaceState(null, '', `#${c.dataset.effect}`); show(c.dataset.effect!, true); });
+    window.addEventListener('hashchange', () => show(location.hash.slice(1)));
+    show(location.hash.slice(1));
+  </script>
+</Base>

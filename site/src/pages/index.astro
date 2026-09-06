@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import ExerciseCard from '../components/ExerciseCard.astro';
 import { getCollection } from 'astro:content';
 import { url } from '../lib/url';
+import { EFFECTS, EFFECT_GROUPS } from '../data/effects';
 
 const exercises = (await getCollection('exercises')).sort((a, b) => a.data.order - b.data.order);
 const masters = exercises.filter((e) => e.data.category === 'master-arcane');
@@ -24,6 +25,22 @@ const groups = [...new Set(doctrine.map((d) => d.data.group ?? 'Doctrine'))];
       </p>
     </div>
     <a href={url('/manuscript/20/')} title="Open this page of the manuscript"><img src={url('/scans/p020.jpg')} alt="Manuscript page 16: the posture for the First Master Arcane" width="400" loading="eager" /></a>
+  </section>
+
+  <section class="want-box">
+    <div class="eyebrow">Guide</div>
+    <h2>What do you want to develop?</h2>
+    <p class="muted">Pick the effect you are after; the guide lists the exercises the text assigns to it and which one to start with.</p>
+    <div class="want">
+      <select id="home-want" aria-label="I want to">
+        <option value="">I want to…</option>
+        {EFFECT_GROUPS.map((g) => <optgroup label={g}>{EFFECTS.filter((f) => f.group === g).map((f) => <option value={f.slug}>{f.want}</option>)}</optgroup>)}
+      </select>
+      <a class="theme-btn" href={url('/effects/')}>browse all effects</a>
+    </div>
+    <script define:vars={{ base: url('/effects/') }}>
+      document.getElementById('home-want').addEventListener('change', (e) => { if (e.target.value) location.href = base + '#' + e.target.value; });
+    </script>
   </section>
 
   <div class="section-h"><h2>The Seven Master Arcanes</h2><a href={url('/exercises/#master-arcane')}>All exercises →</a></div>

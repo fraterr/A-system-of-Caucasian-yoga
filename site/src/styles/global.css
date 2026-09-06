@@ -200,3 +200,25 @@ figure.fig figcaption { font-size: .85rem; color: var(--fig-cap); margin-top: .5
 .insert { background: var(--accent-soft); border-radius: 3px; padding: 0 .2em; font-size: .92em; }
 .margin-note { font-size: .85em; color: var(--ink-3); font-style: italic; }
 .original .diagram-note, .diagram-note { display: block; font-size: .85em; color: var(--ink-3); font-style: italic; margin: .6em 0; }
+
+/* effects guide */
+.want { display: flex; flex-wrap: wrap; gap: .8rem; align-items: center; margin: 1rem 0 1.5rem; }
+.want select { font: inherit; font-size: 1.05rem; background: var(--paper-2); color: var(--ink); border: 1px solid var(--rule); border-radius: 6px; padding: .5em .8em; min-width: 18rem; max-width: 100%; }
+.want .theme-btn { text-decoration: none; }
+.want-box { background: var(--paper-2); border: 1px solid var(--rule); border-left: 4px solid var(--gold); border-radius: 6px; padding: 1.2rem 1.5rem; margin: 0 0 2rem; }
+.want-box h2 { margin: .2rem 0 .3rem; }
+.want-box .want { margin-bottom: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0 0 2rem; }
+.chip { text-decoration: none; font-size: .88rem; padding: .25em .8em; border: 1px solid var(--rule); border-radius: 999px; color: var(--ink-2); background: var(--paper-2); }
+.chip:hover, .chip.active { border-color: var(--accent); color: var(--accent); }
+.chip.active { background: var(--accent-soft); }
+article.effect { border: 1px solid var(--rule); border-radius: 6px; padding: 1.2rem 1.5rem; margin: 0 0 1.4rem; background: var(--paper-2); scroll-margin-top: 5rem; }
+article.effect h3 { margin: 0 0 .5rem; font-size: 1.5rem; }
+.effect-intro { max-width: var(--measure); }
+.start { font-weight: 500; }
+.effect-list { display: grid; gap: 1rem 2rem; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); }
+.effect-list h4 { margin: .4rem 0 .4rem; }
+.effect-list ul { list-style: none; padding: 0; margin: 0; }
+.effect-list li { margin-bottom: .7rem; }
+.effect-list .tag { margin-left: .4rem; vertical-align: middle; }
+.effect-list .why { font-size: .92rem; color: var(--ink-2); }
