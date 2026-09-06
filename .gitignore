@@ -3,3 +3,4 @@ site/dist/
 site/.astro/
 .DS_Store
 Thumbs.db
+site/src/content/pages/
