@@ -1,0 +1,14 @@
+---
+import { url } from '../lib/url';
+interface Props { file: string; caption?: string; page?: number; }
+const { file, caption, page } = Astro.props;
+---
+<figure class="fig">
+  <img src={url(`/figures/${file}`)} alt={caption ?? 'Diagram from the manuscript'} loading="lazy" />
+  {(caption || page !== undefined) && (
+    <figcaption>
+      {caption}
+      {page !== undefined && <> · <a class="pageref" href={url(`/manuscript/${page}/`)}>scan {page}</a></>}
+    </figcaption>
+  )}
+</figure>

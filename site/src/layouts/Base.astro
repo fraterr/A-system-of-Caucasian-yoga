@@ -1,0 +1,108 @@
+---
+import '../styles/global.css';
+import { url } from '../lib/url';
+interface Props { title: string; description?: string; section?: string; }
+const { title, description = 'A structured, searchable edition of Count Stefan Colonna Walewski\'s "A System of Caucasian Yoga": every exercise transcribed and explained, the doctrine reorganised by theme, with a glossary of its terms.', section } = Astro.props;
+const nav = [
+  ['exercises', 'Exercises'],
+  ['doctrine', 'Doctrine'],
+  ['glossary', 'Glossary'],
+  ['manuscript', 'Manuscript'],
+  ['search', 'Search'],
+  ['about', 'About'],
+];
+---
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{title} · Caucasian Yoga</title>
+<meta name="description" content={description} />
+<link rel="icon" href={url('favicon.svg')} type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script is:inline>
+  (function(){try{var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
+</script>
+</head>
+<body>
+<div class="site">
+  <header class="top">
+    <div class="wrap">
+      <a class="brand" href={url('/')}>A System of Caucasian Yoga<small>Count Stefan Colonna Walewski · a study edition</small></a>
+      <nav class="main" aria-label="Main">
+        {nav.map(([slug, label]) => <a href={url(`/${slug}/`)} aria-current={section === slug ? 'page' : undefined}>{label}</a>)}
+      </nav>
+      <button class="theme-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode">☾ / ☀</button>
+    </div>
+  </header>
+  <main>
+    <div class="wrap">
+      <slot />
+    </div>
+  </main>
+  <footer class="bottom">
+    <div class="wrap">
+      <p>Transcribed from the 1955 manuscript facsimile. The practice cards paraphrase and reorganise the author's instructions; the original text is always given alongside so you can check the source. Claims about the effects of the exercises are the author's, reported as such. <a href={url('/about/')}>About this edition</a>.</p>
+    </div>
+  </footer>
+</div>
+<script>
+  import { url } from '../lib/url';
+  // theme toggle
+  document.getElementById('theme-toggle')?.addEventListener('click', () => {
+    const root = document.documentElement;
+    const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+    const cur = root.getAttribute('data-theme') || (dark ? 'dark' : 'light');
+    const next = cur === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch {}
+  });
+  // glossary auto-linking inside .prose blocks (first occurrence of each term per block)
+  (async () => {
+    const blocks = document.querySelectorAll('[data-autolink]');
+    if (!blocks.length) return;
+    let terms: {term: string; aliases: string[]; slug: string; short: string}[] = [];
+    try { terms = await (await fetch(url('/glossary.json'))).json(); } catch { return; }
+    const entries = terms.flatMap(t => [t.term, ...t.aliases].map(a => ({ a, t }))).sort((x, y) => y.a.length - x.a.length);
+    const skip = new Set(['A', 'H1', 'H2', 'H3', 'H4', 'CODE', 'PRE', 'BUTTON', 'DT']);
+    for (const block of blocks) {
+      const seen = new Set<string>();
+      const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT, {
+        acceptNode: (n) => {
+          let p = n.parentElement;
+          while (p && p !== block) { if (skip.has(p.tagName) || p.classList.contains('gl')) return NodeFilter.FILTER_REJECT; p = p.parentElement; }
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      });
+      const nodes: Text[] = [];
+      let n: Node | null;
+      while ((n = walker.nextNode())) nodes.push(n as Text);
+      for (const node of nodes) {
+        let text = node.data;
+        for (const { a, t } of entries) {
+          if (seen.has(t.slug)) continue;
+          const escaped = a.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const re = new RegExp('(^|[^\\w-])(' + escaped + ')(?![\\w-])', 'i');
+          const m = re.exec(text);
+          if (!m) continue;
+          const idx = m.index + m[1].length;
+          const before = text.slice(0, idx), match = text.slice(idx, idx + m[2].length), after = text.slice(idx + m[2].length);
+          const link = document.createElement('a');
+          link.className = 'gl'; link.href = url(`/glossary/#${t.slug}`); link.title = t.short; link.textContent = match;
+          const afterNode = document.createTextNode(after);
+          node.data = before;
+          node.after(link, afterNode);
+          seen.add(t.slug);
+          // continue scanning in the remainder
+          nodes.push(afterNode);
+          break;
+        }
+      }
+    }
+  })();
+</script>
+</body>
+</html>

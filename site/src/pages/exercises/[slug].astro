@@ -1,0 +1,89 @@
+---
+import Base from '../../layouts/Base.astro';
+import Figure from '../../components/Figure.astro';
+import PageRefs from '../../components/PageRefs.astro';
+import { getCollection } from 'astro:content';
+import { url, CATEGORY_LABEL, COLOUR_HEX } from '../../lib/url';
+import { renderMd, renderOriginal } from '../../lib/md';
+
+export async function getStaticPaths() {
+  const exercises = await getCollection('exercises');
+  return exercises.map((ex) => ({ params: { slug: ex.id }, props: { ex } }));
+}
+const { ex } = Astro.props;
+const d = ex.data;
+const all = (await getCollection('exercises')).sort((a, b) => a.data.order - b.data.order);
+const originals = await getCollection('originals');
+const doctrine = await getCollection('doctrine');
+const original = originals.find((o) => o.id === ex.id || o.data.exercise === ex.id);
+const bySlug = (s: string) => all.find((e) => e.id === s);
+const docBySlug = (s: string) => doctrine.find((e) => e.id === s);
+const parent = d.parent ? bySlug(d.parent) : undefined;
+const children = all.filter((e) => e.data.parent === ex.id);
+const idx = all.findIndex((e) => e.id === ex.id);
+const prev = idx > 0 ? all[idx - 1] : undefined;
+const next = idx < all.length - 1 ? all[idx + 1] : undefined;
+const body = renderMd(ex.body ?? '');
+const origHtml = original ? renderOriginal(original.body ?? '') : '';
+const relatedEx = d.related.map(bySlug).filter(Boolean);
+const relatedDoc = d.related.map(docBySlug).filter(Boolean);
+const concepts = d.concepts.map(docBySlug).filter(Boolean);
+const prereqs = d.prerequisites.map(bySlug).filter(Boolean);
+---
+<Base title={d.title} description={d.summary} section="exercises">
+  <div class="eyebrow"><a href={url('/exercises/')}>Exercises</a> › {CATEGORY_LABEL[d.category]}{d.number ? ` ${d.number}` : ''}{parent && <> › <a href={url(`/exercises/${parent.id}/`)}>{parent.data.shortTitle ?? parent.data.title}</a></>}</div>
+  <h1 data-pagefind-meta="title">{d.title}</h1>
+  <p class="lede">{d.summary}</p>
+  <div class="tags">
+    {d.planes.map((p) => <span class={`tag plane-${p}`}>{p}</span>)}
+    {d.purpose.map((p) => <span class="tag">{p}</span>)}
+  </div>
+
+  <dl class="meta">
+    {d.posture && <div><dt>Posture</dt><dd>{d.posture}</dd></div>}
+    {d.breath && <div><dt>Breath</dt><dd><span class="rhythm">{d.breath}</span></dd></div>}
+    {d.colours.length > 0 && <div><dt>Colours</dt><dd>{d.colours.join(', ')}<span class="swatches">{d.colours.map((c) => <span class="swatch" style={`background:${COLOUR_HEX[c.toLowerCase()] ?? 'transparent'}`} title={c}></span>)}</span></dd></div>}
+    {d.words.length > 0 && <div><dt>Words / sounds</dt><dd>{d.words.join(' · ')}</dd></div>}
+    {d.orientation && <div><dt>Facing</dt><dd>{d.orientation}</dd></div>}
+    {d.timeOfDay && <div><dt>When</dt><dd>{d.timeOfDay}</dd></div>}
+    {d.duration && <div><dt>Duration</dt><dd>{d.duration}</dd></div>}
+    {d.bodyAreas.length > 0 && <div><dt>Body areas</dt><dd>{d.bodyAreas.join(', ')}</dd></div>}
+    {prereqs.length > 0 && <div><dt>Do first</dt><dd>{prereqs.map((p, i) => <>{i > 0 && ', '}<a href={url(`/exercises/${p!.id}/`)}>{p!.data.shortTitle ?? p!.data.title}</a></>)}</dd></div>}
+    <div><dt>Source</dt><dd>{d.manuscriptPages && <span>ms. pp. {d.manuscriptPages} · </span>}<PageRefs pages={d.pages} label="scans" /></dd></div>
+  </dl>
+
+  {d.diagrams.length > 0 && (
+    <div class="fig-row">{d.diagrams.map((f) => <Figure file={f.file} caption={f.caption} page={f.page} />)}</div>
+  )}
+
+  <div class="two-col">
+    <article class="prose" data-autolink set:html={body} />
+    <aside>
+      {d.cautions.length > 0 && (
+        <div class="callout warn"><h4>Cautions in the text</h4><ul>{d.cautions.map((c) => <li>{c}</li>)}</ul></div>
+      )}
+      {concepts.length > 0 && (
+        <div class="callout"><h4>Doctrine behind it</h4><ul>{concepts.map((c) => <li><a href={url(`/doctrine/${c!.id}/`)}>{c!.data.title}</a> — <span class="small muted">{c!.data.summary}</span></li>)}</ul></div>
+      )}
+      {(children.length > 0 || relatedEx.length > 0 || relatedDoc.length > 0) && (
+        <div class="callout"><h4>Related</h4><ul>
+          {children.map((c) => <li>Part of this arcane: <a href={url(`/exercises/${c.id}/`)}>{c.data.shortTitle ?? c.data.title}</a></li>)}
+          {relatedEx.map((c) => <li><a href={url(`/exercises/${c!.id}/`)}>{c!.data.shortTitle ?? c!.data.title}</a></li>)}
+          {relatedDoc.map((c) => <li><a href={url(`/doctrine/${c!.id}/`)}>{c!.data.title}</a></li>)}
+        </ul></div>
+      )}
+    </aside>
+  </div>
+
+  {original && (
+    <section class="original" id="original">
+      <div class="orig-h"><span>Original text — Walewski's words, spelling preserved</span><PageRefs pages={original.data.pages.length ? original.data.pages : d.pages} label="scans" /></div>
+      <div data-autolink set:html={origHtml} />
+    </section>
+  )}
+
+  <nav class="pager" aria-label="Previous and next exercise">
+    <span>{prev && <a href={url(`/exercises/${prev.id}/`)}>← {prev.data.shortTitle ?? prev.data.title}</a>}</span>
+    <span>{next && <a href={url(`/exercises/${next.id}/`)}>{next.data.shortTitle ?? next.data.title} →</a>}</span>
+  </nav>
+</Base>

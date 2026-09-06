@@ -1,0 +1,56 @@
+---
+import Base from '../layouts/Base.astro';
+import ExerciseCard from '../components/ExerciseCard.astro';
+import { getCollection } from 'astro:content';
+import { url } from '../lib/url';
+
+const exercises = (await getCollection('exercises')).sort((a, b) => a.data.order - b.data.order);
+const masters = exercises.filter((e) => e.data.category === 'master-arcane');
+const lessers = exercises.filter((e) => e.data.category === 'lesser-arcane');
+const doctrine = (await getCollection('doctrine')).sort((a, b) => a.data.order - b.data.order);
+const glossary = await getCollection('glossary');
+const groups = [...new Set(doctrine.map((d) => d.data.group ?? 'Doctrine'))];
+---
+<Base title="Home" section="home">
+  <section class="hero">
+    <div>
+      <div class="eyebrow">A study edition</div>
+      <h1>A System of Caucasian Yoga</h1>
+      <p class="lede">Count Stefan Colonna Walewski's 1955 manuscript is a terse, hand-lettered system of breathing exercises, postures and doctrine. This site takes it apart so it can be consulted: every exercise on its own page, explained step by step, with the author's exact words beside it; the doctrine regrouped by theme; the strange vocabulary glossed; and the whole facsimile transcribed page by page.</p>
+      <p>
+        <a href={url('/exercises/')}>Browse the exercises</a> ·
+        <a href={url('/doctrine/')}>Read the doctrine</a> ·
+        <a href={url('/exercises/first-master-arcane/')}>Start with the First Master Arcane</a>
+      </p>
+    </div>
+    <a href={url('/manuscript/20/')} title="Open this page of the manuscript"><img src={url('/scans/p020.jpg')} alt="Manuscript page 16: the posture for the First Master Arcane" width="400" loading="eager" /></a>
+  </section>
+
+  <div class="section-h"><h2>The Seven Master Arcanes</h2><a href={url('/exercises/#master-arcane')}>All exercises →</a></div>
+  <p class="muted">The core of the system: seven breathing exercises in the "Master rhythm" (7 s in · 1 s hold · 7 s out · 1 s hold), each charging the body with the four colours. The text calls them the Short Path.</p>
+  <div class="grid">{masters.map((ex) => <ExerciseCard ex={ex} />)}</div>
+
+  <div class="section-h"><h2>Lesser Arcanes and Great Exercises</h2><a href={url('/exercises/#lesser-arcane')}>All →</a></div>
+  <p class="muted">Sixteen practices "for different particular purposes": the heart, will, protection, healing, inner sound, concentration and clairvoyance, dream consciousness, rejuvenation, command, mental connection.</p>
+  <div class="grid">{lessers.map((ex) => <ExerciseCard ex={ex} />)}</div>
+
+  <div class="section-h"><h2>Doctrine, by theme</h2><a href={url('/doctrine/')}>All topics →</a></div>
+  <p class="muted">The theory scattered through the Introduction, the General Compendium and the notes to the exercises, regrouped so that each idea is in one place.</p>
+  <div class="grid">
+    {doctrine.map((d) => (
+      <a class="card" href={url(`/doctrine/${d.id}/`)}>
+        <div class="eyebrow">{d.data.group}</div>
+        <h3>{d.data.title}</h3>
+        <p>{d.data.summary}</p>
+      </a>
+    ))}
+  </div>
+
+  <div class="section-h"><h2>Tools</h2></div>
+  <div class="grid">
+    <a class="card" href={url('/glossary/')}><h3>Glossary</h3><p>{glossary.length} terms: Gaya-Lhama, Master rhythm, Sun and Moon breath, the sacred words, the body's centres, the symbols. Terms are linked automatically wherever they appear in the cards.</p></a>
+    <a class="card" href={url('/manuscript/')}><h3>The manuscript, page by page</h3><p>All 128 scanned pages with a faithful transcription beside each one, navigable by chapter. The transcription keeps the author's spelling.</p></a>
+    <a class="card" href={url('/search/')}><h3>Search</h3><p>Full-text search across the cards, the doctrine, the glossary and the transcription.</p></a>
+    <a class="card" href={url('/about/')}><h3>About this edition</h3><p>What was done to the text, how to read the cards, what is missing from the facsimile, and a note on claims and safety.</p></a>
+  </div>
+</Base>

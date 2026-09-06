@@ -1,0 +1,47 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { url, pad3 } from '../../lib/url';
+import { renderOriginal } from '../../lib/md';
+import { chapterOf } from '../../data/chapters';
+
+export async function getStaticPaths() {
+  const pages = await getCollection('pages');
+  return pages.map((p) => ({ params: { page: String(p.data.pdf_index) }, props: { p } }));
+}
+const { p } = Astro.props;
+const i = p.data.pdf_index;
+const all = (await getCollection('pages')).sort((a, b) => a.data.pdf_index - b.data.pdf_index);
+const prev = all.find((x) => x.data.pdf_index === i - 1);
+const next = all.find((x) => x.data.pdf_index === i + 1);
+const ch = chapterOf(i);
+const label = p.data.manuscript_page ? `Manuscript page ${p.data.manuscript_page}` : `Scan ${i}`;
+const html = renderOriginal(p.body ?? '');
+---
+<Base title={label} section="manuscript" description={`Scan and transcription of ${label.toLowerCase()} of A System of Caucasian Yoga`}>
+  <div class="eyebrow"><a href={url('/manuscript/')}>Manuscript</a>{ch && <> › <a href={url(`/manuscript/#ch-${ch.from}`)}>{ch.title}</a></>}</div>
+  <h1>{label} <span class="muted small">(scan {i} of {all.length - 1})</span></h1>
+  <nav class="pager" aria-label="Previous and next page">
+    <span>{prev && <a href={url(`/manuscript/${i - 1}/`)}>← previous page</a>}</span>
+    {ch?.link && <a href={url(`/${ch.link}/`)}>Study page for this chapter</a>}
+    <span>{next && <a href={url(`/manuscript/${i + 1}/`)}>next page →</a>}</span>
+  </nav>
+  <div class="page-view">
+    <a href={url(`/scans/p${pad3(i)}.jpg`)} target="_blank" rel="noopener" title="Open the scan at full size"><img class="scan" src={url(`/scans/p${pad3(i)}.jpg`)} alt={`${label}, scan`} loading="eager" /></a>
+    <div>
+      {p.data.blank ? <p class="muted">This page carries no text.</p> : <div class="original" data-autolink set:html={html} />}
+      {p.data.diagrams.length > 0 && (
+        <div class="fig-row" style="margin-top:1.5rem">
+          {p.data.diagrams.map((d, k) => (
+            <figure class="fig"><img src={url(`/figures/p${pad3(i)}-${k + 1}.jpg`)} alt={d.desc} loading="lazy" /><figcaption>{d.desc}</figcaption></figure>
+          ))}
+        </div>
+      )}
+      <p class="small muted" style="margin-top:1.5rem">Editorial marks: <span class="unc">[?]</span> illegible or erased · <span class="insert">word</span> interlinear insertion · ⟨margin⟩ marginal note. Spelling is the author's.</p>
+    </div>
+  </div>
+  <nav class="pager" aria-label="Previous and next page">
+    <span>{prev && <a href={url(`/manuscript/${i - 1}/`)}>← previous page</a>}</span>
+    <span>{next && <a href={url(`/manuscript/${i + 1}/`)}>next page →</a>}</span>
+  </nav>
+</Base>

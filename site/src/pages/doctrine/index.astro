@@ -1,0 +1,22 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { url } from '../../lib/url';
+const doctrine = (await getCollection('doctrine')).sort((a, b) => a.data.order - b.data.order);
+const groups = [...new Set(doctrine.map((d) => d.data.group ?? 'Doctrine'))];
+---
+<Base title="Doctrine" section="doctrine">
+  <div class="eyebrow">Theory</div>
+  <h1>The doctrine, by theme</h1>
+  <p class="lede">Walewski scatters his theory across the Introduction, the General Compendium and notes inside the exercises. Here it is regrouped: each topic collects every passage on the subject, quotes the text, and links to the exercises that put it to use.</p>
+  {groups.map((g) => (
+    <section>
+      <h2 class="chapter-h">{g}</h2>
+      <div class="grid">
+        {doctrine.filter((d) => (d.data.group ?? 'Doctrine') === g).map((d) => (
+          <a class="card" href={url(`/doctrine/${d.id}/`)}><h3>{d.data.title}</h3><p>{d.data.summary}</p></a>
+        ))}
+      </div>
+    </section>
+  ))}
+</Base>

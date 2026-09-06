@@ -1,0 +1,35 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { url, pad3 } from '../../lib/url';
+import { CHAPTERS, MISSING_MS_PAGES } from '../../data/chapters';
+const pages = (await getCollection('pages')).sort((a, b) => a.data.pdf_index - b.data.pdf_index);
+const groups = [...new Set(CHAPTERS.map((c) => c.group))];
+---
+<Base title="Manuscript" section="manuscript">
+  <div class="eyebrow">Facsimile</div>
+  <h1>The manuscript, page by page</h1>
+  <p class="lede">All {pages.length} scanned pages of the facsimile, each with its transcription. Numbers on the thumbnails are the author's own page numbers; the facsimile skips manuscript pages {MISSING_MS_PAGES.join(', ')}, so some sentences break across a gap.</p>
+  <h2>Chapters</h2>
+  <ul class="toc">
+    {CHAPTERS.map((c) => <li><a href={url(`/manuscript/${c.from}/`)}>{c.title}</a> <span class="muted small">scans {c.from}–{c.to}</span></li>)}
+  </ul>
+  {groups.map((g) => (
+    <section>
+      <h2 class="chapter-h">{g}</h2>
+      {CHAPTERS.filter((c) => c.group === g).map((c) => (
+        <>
+          <h3 id={`ch-${c.from}`}>{c.title} {c.link && <a class="pageref" href={url(`/${c.link}/`)}>study page</a>}</h3>
+          <div class="thumbs">
+            {pages.filter((p) => p.data.pdf_index >= c.from && p.data.pdf_index <= c.to).map((p) => (
+              <a href={url(`/manuscript/${p.data.pdf_index}/`)}>
+                <img src={url(`/scans/p${pad3(p.data.pdf_index)}.jpg`)} alt={`Scan ${p.data.pdf_index}`} loading="lazy" />
+                {p.data.manuscript_page ? `ms. ${p.data.manuscript_page}` : `scan ${p.data.pdf_index}`}
+              </a>
+            ))}
+          </div>
+        </>
+      ))}
+    </section>
+  ))}
+</Base>

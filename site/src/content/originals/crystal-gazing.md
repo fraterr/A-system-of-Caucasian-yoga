@@ -1,0 +1,17 @@
+---
+exercise: crystal-gazing
+pages: [74, 75]
+---
+Now you can do crystal gazing. For clairvoyance and also to tranmute the thoughts at a distance.
+
+Sit on the chair, relax, do the First Master Arcane (exrcise), than have in front of you a table on which you can rest your elbows. – Rest upper part of your face on the palms and fingers, but thumbs place behind the ears. Have the ball of crystal, on a stand litte higher that level of your eyes. (You can use, glass ball, tourmaline, beryl, magical mirror, or glass ball alled with water, also fire.)
+
+Have a single candle burning up behind you, while in front of you, behind the crystal have a dark screen preferably black velvet.
+
+Procede to gaze and concentrate in the crystal, splitting lightly the ether until you will see two reflections of the candle.
+
+Watch patiently, the things will begin to appear, and get clear, practice always every day at the same time within the hour. Time – from 5 (five) to 30 (thirty) minutes without blinking. (Folow the Sun.)
+
+You can do also watching forms holding your hand (right) ower your face and pressing slightly on the top of the bridge of the nose, with the eyes closed. Then you see thing outlined on the dark screen, very often symbolic. This branch is very good in reading thought forms.
+
+(x) For telepathic transverence, use same means lik crystal gazing, only instea of bein receptive (passive, blank) repeat the formula you want to convey to other person, and tune on active state (will power, and desire) ∴

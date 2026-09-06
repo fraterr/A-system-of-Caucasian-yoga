@@ -1,0 +1,44 @@
+---
+import Base from '../../layouts/Base.astro';
+import Figure from '../../components/Figure.astro';
+import PageRefs from '../../components/PageRefs.astro';
+import { getCollection } from 'astro:content';
+import { url } from '../../lib/url';
+import { renderOriginal } from '../../lib/md';
+
+export async function getStaticPaths() {
+  const items = await getCollection('doctrine');
+  return items.map((d) => ({ params: { slug: d.id }, props: { d } }));
+}
+const { d } = Astro.props;
+const all = (await getCollection('doctrine')).sort((a, b) => a.data.order - b.data.order);
+const exercises = await getCollection('exercises');
+const idx = all.findIndex((e) => e.id === d.id);
+const prev = idx > 0 ? all[idx - 1] : undefined;
+const next = idx < all.length - 1 ? all[idx + 1] : undefined;
+// doctrine pages quote the manuscript in blockquotes; renderOriginal styles editorial marks inside them
+const body = renderOriginal(d.body ?? '');
+const uses = [
+  ...d.data.exercises.map((s) => exercises.find((e) => e.id === s)).filter(Boolean),
+  ...exercises.filter((e) => e.data.concepts.includes(d.id) && !d.data.exercises.includes(e.id)),
+];
+const related = d.data.related.map((s) => all.find((e) => e.id === s)).filter(Boolean);
+---
+<Base title={d.data.title} description={d.data.summary} section="doctrine">
+  <div class="eyebrow"><a href={url('/doctrine/')}>Doctrine</a> › {d.data.group}</div>
+  <h1>{d.data.title}</h1>
+  <p class="lede">{d.data.summary}</p>
+  <p><PageRefs pages={d.data.pages} label="Manuscript pages" /></p>
+  {d.data.diagrams.length > 0 && <div class="fig-row">{d.data.diagrams.map((f) => <Figure file={f.file} caption={f.caption} page={f.page} />)}</div>}
+  <div class="two-col">
+    <article class="prose" data-autolink set:html={body} />
+    <aside>
+      {uses.length > 0 && <div class="callout"><h4>Exercises that use this</h4><ul>{uses.map((e) => <li><a href={url(`/exercises/${e!.id}/`)}>{e!.data.shortTitle ?? e!.data.title}</a></li>)}</ul></div>}
+      {related.length > 0 && <div class="callout"><h4>Related topics</h4><ul>{related.map((e) => <li><a href={url(`/doctrine/${e!.id}/`)}>{e!.data.title}</a></li>)}</ul></div>}
+    </aside>
+  </div>
+  <nav class="pager" aria-label="Previous and next topic">
+    <span>{prev && <a href={url(`/doctrine/${prev.id}/`)}>← {prev.data.title}</a>}</span>
+    <span>{next && <a href={url(`/doctrine/${next.id}/`)}>{next.data.title} →</a>}</span>
+  </nav>
+</Base>

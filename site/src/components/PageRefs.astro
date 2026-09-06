@@ -1,0 +1,14 @@
+---
+import { url } from '../lib/url';
+import { getCollection } from 'astro:content';
+interface Props { pages: number[]; label?: string; }
+const { pages, label = 'Manuscript pages' } = Astro.props;
+const all = await getCollection('pages');
+const ms = (i: number) => all.find((p) => p.data.pdf_index === i)?.data.manuscript_page;
+---
+{pages.length > 0 && (
+  <span class="pagerefs">
+    <span class="muted small">{label}:</span>
+    {pages.map((p) => <a class="pageref" href={url(`/manuscript/${p}/`)} title={`PDF page ${p + 1}`}>{ms(p) ? `ms. ${ms(p)}` : `scan ${p}`}</a>)}
+  </span>
+)}

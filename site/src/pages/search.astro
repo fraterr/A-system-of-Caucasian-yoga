@@ -1,0 +1,20 @@
+---
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/url';
+---
+<Base title="Search" section="search">
+  <div class="eyebrow">Full-text search</div>
+  <h1>Search the whole edition</h1>
+  <p class="lede">Searches the practice cards, the doctrine, the glossary and the complete page-by-page transcription. Try a term (<em>Gaya-Lhama</em>, <em>solar plexus</em>, <em>clairaudience</em>), a colour, or a body part.</p>
+  <link href={url('/pagefind/pagefind-ui.css')} rel="stylesheet" />
+  <script is:inline src={url('/pagefind/pagefind-ui.js')}></script>
+  <div id="search"></div>
+  <script is:inline define:vars={{ base: url('/pagefind/') }}>
+    window.addEventListener('DOMContentLoaded', () => {
+      if (!window.PagefindUI) { document.getElementById('search').innerHTML = '<p class="muted">Search index not built. Run <code>npm run build</code>; search only works in the built site.</p>'; return; }
+      new PagefindUI({ element: '#search', showSubResults: true, showImages: false, bundlePath: base, pageSize: 10, excerptLength: 30 });
+      const q = new URLSearchParams(location.search).get('q');
+      if (q) { const i = document.querySelector('#search input'); if (i) { i.value = q; i.dispatchEvent(new Event('input', { bubbles: true })); } }
+    });
+  </script>
+</Base>

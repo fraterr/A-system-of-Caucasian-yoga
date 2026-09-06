@@ -1,0 +1,34 @@
+---
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/url';
+import { MISSING_MS_PAGES } from '../data/chapters';
+---
+<Base title="About this edition" section="about">
+  <div class="eyebrow">Colophon</div>
+  <h1>About this edition</h1>
+  <div class="prose">
+    <h2>The text</h2>
+    <p><em>A System of Caucasian Yoga</em> was published in 1955 as a facsimile of a hand-lettered manuscript by Count Stefan Colonna Walewski (1897–1955), a Polish-born antiquarian and occultist living in New York. The title page says the system was "orally received". The book is short, dense, written in block capitals with the author's own diagrams, and famously hard to consult: exercises, theory, symbols and cautions are interleaved, numbering is inconsistent, and the manuscript stops mid-sentence.</p>
+    <h2>What this site does</h2>
+    <ul>
+      <li><strong>Transcribes</strong> every page of the facsimile. The transcription keeps Walewski's wording and spelling ("developes", "thru", "rhytm"), normalises only the capitals, and marks illegible words, erasures, interlinear insertions and marginal notes. Each transcribed page sits beside its scan in the <a href={url('/manuscript/')}>Manuscript</a> section.</li>
+      <li><strong>Separates the exercises.</strong> Every practice gets its own page: the seven Master Arcanes, the sixteen Lesser and Great Arcanes, and the smaller practices the text tucks inside them (foot care, the eye exercises, the hand exercises, the tongue exercise, the Order of the Serpent…). Each page has a <em>practice card</em> in plain modern English and, below it, the <em>original text</em> for that exercise, so the paraphrase can always be checked against the source.</li>
+      <li><strong>Regroups the doctrine.</strong> The theory is reorganised by <a href={url('/doctrine/')}>theme</a>, with the relevant passages quoted and page-referenced.</li>
+      <li><strong>Glosses the vocabulary.</strong> A <a href={url('/glossary/')}>glossary</a> explains the terms as the text uses them; terms are auto-linked in the cards.</li>
+    </ul>
+    <h2>How to read a practice card</h2>
+    <p>The card is a reorganisation, not an improvement. It breaks the author's run-on instructions into steps, fills in what he assumes from earlier exercises (the posture, the Master rhythm, the colour sequence), and states the purpose and the phenomena he describes. Where the text is ambiguous the card says so rather than guessing. Anything claimed about effects ("develops clairvoyance", "enables to walk on water") is the author's claim and is reported as such.</p>
+    <h2>Gaps and problems in the source</h2>
+    <ul>
+      <li>The facsimile skips manuscript pages {MISSING_MS_PAGES.join(', ')}. Page 19 held most of the Second Master Arcane's posture; page 36 fell between the Sixth and Seventh Arcane; pages 86 and 92 are inside the Twelfth Arcane. Sentences break at those points.</li>
+      <li>The Index misnumbers the sixth Lesser Arcane as "8." and the manuscript alternates "L." and "G." (and once "G.S.") before the Roman numerals without explaining the difference.</li>
+      <li>The music for the two mantras of the Eighth Arcane "was not furnished with the manuscript" (publisher's note on the staves).</li>
+      <li>Several words are blacked out or erased by the author; they are marked [?].</li>
+      <li>The text ends unfinished at "Ritual, ceremonial, candles, in".</li>
+    </ul>
+    <h2>A note on safety</h2>
+    <p>Some practices in this manuscript involve breath-holding, hyperventilation ("panting"), pressure on the neck and eyes, fasting, sun-gazing, inserting objects into the body, cutting the frenulum of the tongue, and in one place a spinal-fluid transfusion. They are transcribed here because the text is being presented whole, not because they are recommended. Sun-gazing can permanently damage the retina; the medical procedures described are dangerous outside a clinical setting. The cautions the author himself gives are collected on each card.</p>
+    <h2>Source and rights</h2>
+    <p>Built from a scan of the 1955 facsimile. The transcription, cards, doctrine pages and glossary were prepared for this edition. Source files, including the page-by-page transcription in Markdown, are in the <a href="https://github.com/fraterr/A-system-of-Caucasian-yoga">GitHub repository</a>.</p>
+  </div>
+</Base>

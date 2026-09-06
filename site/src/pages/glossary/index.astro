@@ -1,0 +1,32 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageRefs from '../../components/PageRefs.astro';
+import { getCollection } from 'astro:content';
+import { url } from '../../lib/url';
+import { renderMd } from '../../lib/md';
+const terms = (await getCollection('glossary')).sort((a, b) => a.data.term.localeCompare(b.data.term, 'en', { sensitivity: 'base' }));
+const letters = [...new Set(terms.map((t) => t.data.term[0].toUpperCase()))];
+const bySlug = (s: string) => terms.find((t) => t.id === s);
+---
+<Base title="Glossary" section="glossary">
+  <div class="eyebrow">Vocabulary</div>
+  <h1>Glossary</h1>
+  <p class="lede">The manuscript's own terms, Walewski's borrowings from Zoroastrian, Hindu, Egyptian and occult vocabulary, and his idiosyncratic anatomy. Definitions stay inside the system: they say what the text means by a word, not whether it is right. Wherever a term appears in a card it is dotted-underlined and links here.</p>
+  <nav class="alpha-nav" aria-label="Alphabet">{letters.map((l) => <a href={`#letter-${l}`}>{l}</a>)}</nav>
+  {letters.map((l) => (
+    <section>
+      <h2 class="chapter-h" id={`letter-${l}`}>{l}</h2>
+      {terms.filter((t) => t.data.term[0].toUpperCase() === l).map((t) => (
+        <div class="term" id={t.id}>
+          <h3>{t.data.term}{t.data.aliases.length > 0 && <span class="aliases"> — also: {t.data.aliases.join(', ')}</span>}</h3>
+          <p><strong>{t.data.short}</strong></p>
+          <div class="prose" set:html={renderMd(t.body ?? '')} />
+          <p class="small">
+            <PageRefs pages={t.data.pages} label="Pages" />
+            {t.data.related.length > 0 && <span class="muted"> · See also: {t.data.related.map((r, i) => { const x = bySlug(r); return <>{i > 0 && ', '}{x ? <a href={`#${x.id}`}>{x.data.term}</a> : r}</>; })}</span>}
+          </p>
+        </div>
+      ))}
+    </section>
+  ))}
+</Base>

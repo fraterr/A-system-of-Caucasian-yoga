@@ -1,0 +1,59 @@
+---
+import Base from '../../layouts/Base.astro';
+import ExerciseCard from '../../components/ExerciseCard.astro';
+import { getCollection } from 'astro:content';
+import { CATEGORY_LABEL, CATEGORY_ORDER } from '../../lib/url';
+
+const exercises = (await getCollection('exercises')).sort((a, b) => a.data.order - b.data.order);
+const purposes = [...new Set(exercises.flatMap((e) => e.data.purpose))].sort();
+const planes = ['physical', 'mental', 'spiritual', 'psychic'];
+const byCat = CATEGORY_ORDER.map((c) => ({ c, items: exercises.filter((e) => e.data.category === c) })).filter((g) => g.items.length);
+const blurb: Record<string, string> = {
+  'master-arcane': 'The seven core exercises. All use the Master rhythm and the four colours; each adds a posture and a movement, and each is said to develop a specific faculty.',
+  'lesser-arcane': 'Sixteen practices for particular purposes. The manuscript labels them "L." (lesser) or "G." (great) inconsistently; the labels are kept as written.',
+  'auxiliary': 'Smaller practices, postures and regimens that the manuscript gives inside a larger arcane or in passing. Each is filed under the arcane it belongs to.',
+  'ritual': 'Ceremonial work described at the end of the manuscript, which breaks off unfinished.',
+};
+---
+<Base title="Exercises" section="exercises">
+  <div class="eyebrow">Practice</div>
+  <h1>All the exercises</h1>
+  <p class="lede">{exercises.length} practices, each on its own page with a step-by-step card and the original text. Filter by kind, by the plane of development the text assigns, or by declared purpose.</p>
+
+  <div class="filters" id="filters">
+    <label>Kind <select id="f-cat"><option value="">all</option>{CATEGORY_ORDER.map((c) => <option value={c}>{CATEGORY_LABEL[c]}</option>)}</select></label>
+    <label>Plane <select id="f-plane"><option value="">all</option>{planes.map((p) => <option value={p}>{p}</option>)}</select></label>
+    <label>Purpose <select id="f-purpose"><option value="">all</option>{purposes.map((p) => <option value={p}>{p}</option>)}</select></label>
+    <label>Title <input id="f-q" type="search" placeholder="filter by name…" /></label>
+    <span class="count" id="f-count"></span>
+  </div>
+
+  {byCat.map(({ c, items }) => (
+    <section class="cat" id={c} data-cat={c}>
+      <h2 class="chapter-h">{CATEGORY_LABEL[c]}s</h2>
+      <p class="muted small">{blurb[c]}</p>
+      <div class="grid">{items.map((ex) => <ExerciseCard ex={ex} />)}</div>
+    </section>
+  ))}
+
+  <script>
+    const $ = (s: string) => document.querySelector(s) as HTMLInputElement;
+    const cards = [...document.querySelectorAll<HTMLElement>('.card[data-category]')];
+    const apply = () => {
+      const cat = $('#f-cat').value, plane = $('#f-plane').value, purpose = $('#f-purpose').value, q = $('#f-q').value.trim().toLowerCase();
+      let n = 0;
+      for (const c of cards) {
+        const ok = (!cat || c.dataset.category === cat)
+          && (!plane || (c.dataset.planes || '').split(' ').includes(plane))
+          && (!purpose || (c.dataset.purpose || '').split('|').includes(purpose))
+          && (!q || (c.dataset.title || '').includes(q));
+        c.hidden = !ok; if (ok) n++;
+      }
+      for (const s of document.querySelectorAll<HTMLElement>('section.cat')) s.hidden = ![...s.querySelectorAll('.card')].some((c) => !(c as HTMLElement).hidden);
+      $('#f-count').textContent = `${n} of ${cards.length}`;
+    };
+    for (const id of ['#f-cat', '#f-plane', '#f-purpose']) $(id).addEventListener('change', apply);
+    $('#f-q').addEventListener('input', apply);
+    apply();
+  </script>
+</Base>
