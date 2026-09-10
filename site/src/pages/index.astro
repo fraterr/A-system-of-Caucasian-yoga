@@ -13,19 +13,31 @@ const glossary = await getCollection('glossary');
 const groups = [...new Set(doctrine.map((d) => d.data.group ?? 'Doctrine'))];
 ---
 <Base title="Home" section="home">
-  <section class="hero">
-    <div>
-      <div class="eyebrow">A study edition</div>
-      <h1>A System of Caucasian Yoga</h1>
-      <p class="lede">Count Stefan Colonna Walewski's 1955 manuscript is a terse, hand-lettered system of breathing exercises, postures and doctrine. This site takes it apart so it can be consulted: every exercise on its own page, explained step by step, with the author's exact words beside it; the doctrine regrouped by theme; the strange vocabulary glossed; and the whole facsimile transcribed page by page.</p>
-      <p>
-        <a href={url('/exercises/')}>Browse the exercises</a> ·
-        <a href={url('/doctrine/')}>Read the doctrine</a> ·
-        <a href={url('/exercises/first-master-arcane/')}>Start with the First Master Arcane</a>
-      </p>
+  <div class="edition-line"><span>A manuscript, opened for study</span><span>Exercises · Doctrine · Original plates</span></div>
+  <section class="hero frontispiece">
+    <div class="title-leaf">
+      <div class="eyebrow">As orally received by</div>
+      <p class="author-line">Count Stefan Colonna Walewski</p>
+      <h1><span>A System of</span>Caucasian<br />Yoga</h1>
+      <div class="ink-divider" aria-hidden="true">∴</div>
+      <p class="lede">A practical companion to the manuscript.<br />The exercises explained. The doctrine connected.<br />The original words always within reach.</p>
+      <a class="ink-button" href={url('/exercises/')}>Open the exercises <span aria-hidden="true">↗</span></a>
+      <a class="text-button" href={url('/manuscript/')}>Explore the facsimile</a>
     </div>
-    <a href={url('/manuscript/20/')} title="Open this page of the manuscript"><img src={url('/scans/p020.jpg')} alt="Manuscript page 16: the posture for the First Master Arcane" width="400" loading="eager" /></a>
+    <figure class="frontispiece-plate">
+      <div class="plate-heading"><span>Plate I</span><span>The Master System</span></div>
+      <a href={url('/manuscript/20/')}><img src={url('/figures/p020-1.jpg')} alt="Walewski’s original drawing of the seated First Master Arcane, its gaze and hand position" width="748" height="432" fetchpriority="high" /></a>
+      <figcaption><span aria-hidden="true">∴</span> Posture, breath &amp; attention<br /><a href={url('/exercises/first-master-arcane/')}>Study the First Master Arcane →</a></figcaption>
+      <p class="plate-note">From the author's own hand<br />Manuscript page 16</p>
+    </figure>
   </section>
+
+  <div class="edition-index" aria-label="Contents of the edition">
+    <a href={url('/exercises/')}><strong>{exercises.length}</strong><span>Exercises &amp; practices</span></a>
+    <a href={url('/doctrine/')}><strong>{doctrine.length}</strong><span>Doctrinal themes</span></a>
+    <a href={url('/glossary/')}><strong>{glossary.length}</strong><span>Words explained</span></a>
+    <a href={url('/manuscript/')}><strong>128</strong><span>Facsimile pages</span></a>
+  </div>
 
   <section class="want-box">
     <div class="eyebrow">Guide</div>
@@ -44,7 +56,7 @@ const groups = [...new Set(doctrine.map((d) => d.data.group ?? 'Doctrine'))];
   </section>
 
   <div class="section-h"><h2>The Seven Master Arcanes</h2><a href={url('/exercises/#master-arcane')}>All exercises →</a></div>
-  <p class="muted">The core of the system: seven breathing exercises in the "Master rhythm" (7 s in · 1 s hold · 7 s out · 1 s hold), each charging the body with the four colours. The text calls them the Short Path.</p>
+  <p class="muted">The core of the system, called the Short Path: seven exercises in posture, breath and attention. Begin with the Master rhythm; each arcane gives its own instructions.</p>
   <div class="grid">{masters.map((ex) => <ExerciseCard ex={ex} />)}</div>
 
   <div class="section-h"><h2>Lesser Arcanes and Great Exercises</h2><a href={url('/exercises/#lesser-arcane')}>All →</a></div>

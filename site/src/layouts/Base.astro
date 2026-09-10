@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import '../styles/manuscript.css';
 import { url } from '../lib/url';
 interface Props { title: string; description?: string; section?: string; }
 const { title, description = 'A structured, searchable edition of Count Stefan Colonna Walewski\'s "A System of Caucasian Yoga": every exercise transcribed and explained, the doctrine reorganised by theme, with a glossary of its terms.', section } = Astro.props;
@@ -25,21 +26,22 @@ const nav = [
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <script is:inline>
-  (function(){try{var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
+  (function(){var t='light';try{t=localStorage.getItem('theme')||'light';}catch(e){}document.documentElement.setAttribute('data-theme',t);})();
 </script>
 </head>
 <body>
+<a class="skip-link" href="#reading-room">Skip to content</a>
 <div class="site">
   <header class="top">
     <div class="wrap">
-      <a class="brand" href={url('/')}>A System of Caucasian Yoga<small>Count Stefan Colonna Walewski · a study edition</small></a>
+      <a class="brand" href={url('/')}><span class="brand-mark" aria-hidden="true">∴</span><span>Caucasian Yoga<small>The Walewski manuscript · 1955</small></span></a>
       <nav class="main" aria-label="Main">
         {nav.map(([slug, label]) => <a href={url(`/${slug}/`)} aria-current={section === slug ? 'page' : undefined}>{label}</a>)}
       </nav>
       <button class="theme-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode">☾ / ☀</button>
     </div>
   </header>
-  <main>
+  <main id="reading-room">
     <div class="wrap">
       <slot />
     </div>
