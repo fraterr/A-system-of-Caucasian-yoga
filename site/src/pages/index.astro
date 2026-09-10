@@ -13,25 +13,12 @@ const glossary = await getCollection('glossary');
 const groups = [...new Set(doctrine.map((d) => d.data.group ?? 'Doctrine'))];
 ---
 <Base title="Home" section="home">
-  <div class="edition-line"><span>A manuscript, opened for study</span><span>Exercises · Doctrine · Original plates</span></div>
-  <section class="hero frontispiece">
-    <div class="title-leaf">
-      <div class="eyebrow">As orally received by</div>
-      <p class="author-line">Count Stefan Colonna Walewski</p>
-      <h1><span>A System of</span>Caucasian<br />Yoga</h1>
-      <div class="ink-divider" aria-hidden="true">∴</div>
-      <p class="lede">A practical companion to the manuscript.<br />The exercises explained. The doctrine connected.<br />The original words always within reach.</p>
-      <a class="ink-button" href={url('/exercises/')}>Open the exercises <span aria-hidden="true">↗</span></a>
-      <a class="text-button" href={url('/manuscript/')}>Explore the facsimile</a>
-    </div>
-    <figure class="frontispiece-plate">
-      <div class="plate-heading"><span>Plate I</span><span>The Master System</span></div>
-      <a href={url('/manuscript/20/')}><img src={url('/figures/p020-1.jpg')} alt="Walewski’s original drawing of the seated First Master Arcane, its gaze and hand position" width="748" height="432" fetchpriority="high" /></a>
-      <figcaption><span aria-hidden="true">∴</span> Posture, breath &amp; attention<br /><a href={url('/exercises/first-master-arcane/')}>Study the First Master Arcane →</a></figcaption>
-      <p class="plate-note">From the author's own hand<br />Manuscript page 16</p>
-    </figure>
+  <section class="wood-cover">
+    <div class="wood-kicker"><span>A BOOK OF EXERCISES &amp; MYSTERIES</span><span>A STUDY EDITION / 1955</span></div>
+    <h1>CAUCASIAN<br/><em>YOGA</em></h1>
+    <div class="wood-byline"><p>As orally received by<br/>Count Stefan Colonna Walewski</p><span class="wood-seal" aria-hidden="true">∴</span><p>Read the signs.<br/>Follow the breath.</p></div>
+    <a class="wood-open" href="#choose-effect">OPEN THE BOOK ↓</a>
   </section>
-
   <div class="edition-index" aria-label="Contents of the edition">
     <a href={url('/exercises/')}><strong>{exercises.length}</strong><span>Exercises &amp; practices</span></a>
     <a href={url('/doctrine/')}><strong>{doctrine.length}</strong><span>Doctrinal themes</span></a>
@@ -39,7 +26,7 @@ const groups = [...new Set(doctrine.map((d) => d.data.group ?? 'Doctrine'))];
     <a href={url('/manuscript/')}><strong>128</strong><span>Facsimile pages</span></a>
   </div>
 
-  <section class="want-box">
+  <section class="want-box" id="choose-effect">
     <div class="eyebrow">Guide</div>
     <h2>What do you want to develop?</h2>
     <p class="muted">Pick the effect you are after; the guide lists the exercises the text assigns to it and which one to start with.</p>

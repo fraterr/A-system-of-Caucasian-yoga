@@ -26,7 +26,7 @@ const nav = [
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <script is:inline>
-  (function(){var t='light';try{t=localStorage.getItem('theme')||'light';}catch(e){}document.documentElement.setAttribute('data-theme',t);})();
+  (function(){var t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';try{var saved=localStorage.getItem('theme');if(saved==='light'||saved==='dark')t=saved;}catch(e){}document.documentElement.setAttribute('data-theme',t);})();
 </script>
 </head>
 <body>
@@ -38,7 +38,7 @@ const nav = [
       <nav class="main" aria-label="Main">
         {nav.map(([slug, label]) => <a href={url(`/${slug}/`)} aria-current={section === slug ? 'page' : undefined}>{label}</a>)}
       </nav>
-      <button class="theme-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode">☾ / ☀</button>
+      <button class="theme-btn" id="theme-toggle" type="button" aria-label="Dark mode" aria-pressed="false"><span aria-hidden="true">◐</span> <span id="theme-label">Dark mode</span></button>
     </div>
   </header>
   <main id="reading-room">
@@ -54,14 +54,36 @@ const nav = [
 </div>
 <script>
   import { url } from '../lib/url';
-  // theme toggle
-  document.getElementById('theme-toggle')?.addEventListener('click', () => {
-    const root = document.documentElement;
-    const dark = matchMedia('(prefers-color-scheme: dark)').matches;
-    const cur = root.getAttribute('data-theme') || (dark ? 'dark' : 'light');
-    const next = cur === 'dark' ? 'light' : 'dark';
-    root.setAttribute('data-theme', next);
+  const root = document.documentElement;
+  const toggle = document.getElementById('theme-toggle');
+  const label = document.getElementById('theme-label');
+  const systemTheme = matchMedia('(prefers-color-scheme: dark)');
+  function syncThemeButton() {
+    const dark = root.dataset.theme === 'dark';
+    toggle?.setAttribute('aria-pressed', String(dark));
+    if (label) label.textContent = dark ? 'Light mode' : 'Dark mode';
+  }
+  syncThemeButton();
+  toggle?.addEventListener('click', () => {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next;
     try { localStorage.setItem('theme', next); } catch {}
+    syncThemeButton();
+  });
+  systemTheme.addEventListener('change', (event) => {
+    let saved: string | null = null;
+    try { saved = localStorage.getItem('theme'); } catch {}
+    if (saved !== 'light' && saved !== 'dark') {
+      root.dataset.theme = event.matches ? 'dark' : 'light';
+      syncThemeButton();
+    }
+  });
+  window.addEventListener('storage', (event) => {
+    if (event.key === 'theme') {
+      root.dataset.theme = event.newValue === 'light' || event.newValue === 'dark'
+        ? event.newValue : systemTheme.matches ? 'dark' : 'light';
+      syncThemeButton();
+    }
   });
   // glossary auto-linking inside .prose blocks (first occurrence of each term per block)
   (async () => {
